@@ -6,3 +6,4 @@ deps
 erl_crash.dump
 .concrete/DEV_MODE
 .rebar
+*.so
