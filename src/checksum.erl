@@ -24,17 +24,26 @@
 
 -module(checksum).
 
--export([checksum/1, checksum_1/1, start/0, init/0]).
+-export([checksum/1, checksum_1/1, start/0, init/1]).
 
 -define(INT16MAX, 65535).
 
 start() ->
-    spawn(checksum, init, []).
+    Ref = make_ref(),
+    Self = self(),
+    Pid = spawn(checksum, init, [{Self, Ref}]),
+    receive
+      {Ref, started} -> Pid
+      after 5000 ->
+          erlang:error("cannot start checksum driver")
+    end.
 
-init() ->
-    erl_ddll:load_driver("c_src", "checksum"),
+init({Parent,Ref}) ->
+    Path = filename:dirname(code:which(?MODULE)),
+    ok = erl_ddll:load_driver(filename:join(Path,"../lib"), "checksum"),
     Port = open_port({spawn, checksum}, [binary]),
     register(checksum, self()),
+    Parent ! {Ref, started},
     loop(Port).
 
 checksum(Packet) ->
