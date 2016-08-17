@@ -1,7 +1,11 @@
 all: 
-	$(MAKE) -C c_src
-	$(MAKE) -C src
+	$(MAKE) -C lib
+	$(MAKE) -C ebin
+
+eqc:
+	$(MAKE) -C lib 
+	$(MAKE) -C ebin eqc
 
 clean:
-	$(MAKE) -C c_src clean
-	$(MAKE) -C src clean
+	$(MAKE) -C lib clean
+	$(MAKE) -C ebin clean
